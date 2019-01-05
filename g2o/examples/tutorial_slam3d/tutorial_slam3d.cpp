@@ -49,7 +49,7 @@ int main()
     // prepare and run the optimization
 	// fix the first robot pose to account for gauge freedom
     VertexSE3* firstRobotPose = dynamic_cast<VertexSE3*>(optimizer.vertex(0));
-    // firstRobotPose->setFixed(true);
+    firstRobotPose->setFixed(true);
     optimizer.setVerbose(true);
 
     return 0;
