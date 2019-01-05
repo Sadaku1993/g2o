@@ -44,9 +44,9 @@ int main()
     optimizer.setVerbose(true);
 
     std::cerr << "Optimizing" << std::endl;
-    optimizer.initialOptimization();
+    optimizer.initializeOptimization();
     optimizer.optimize(10);
-    std::cout << "done." << std::endl;
+    std::cerr << "done." << std::endl;
 
     optimizer.save("aft.csv");
 
