@@ -27,17 +27,14 @@
 #ifndef G2O_VERTEX_SE3_OFFSET_PARAMETERS_H_
 #define G2O_VERTEX_SE3_OFFSET_PARAMETERS_H_
 
-#include "g2o/core/optimizable_graph.h"
 
 #include "g2o/core/hyper_graph_action.h"
 #include "g2o/core/cache.h"
 #include "g2o_types_slam3d_api.h"
 
-#include <Eigen/Geometry>
 
 namespace g2o {
 
-  class VertexSE3;
 
   /**
    * \brief offset for an SE3
@@ -55,17 +52,17 @@ namespace g2o {
        * update the offset to a new value.
        * re-calculates the different representations, e.g., the rotation matrix
        */
-      void setOffset(const Eigen::Isometry3d& offset_=Eigen::Isometry3d::Identity());
+      void setOffset(const Isometry3& offset_=Isometry3::Identity());
 
       //! rotation of the offset as 3x3 rotation matrix
-      const Eigen::Isometry3d& offset() const { return _offset;}
+      const Isometry3& offset() const { return _offset;}
 
       //! rotation of the inverse offset as 3x3 rotation matrix
-      const Eigen::Isometry3d& inverseOffset() const { return _inverseOffset;}
+      const Isometry3& inverseOffset() const { return _inverseOffset;}
 
     protected:
-      Eigen::Isometry3d _offset;
-      Eigen::Isometry3d _inverseOffset;
+      Isometry3 _offset;
+      Isometry3 _inverseOffset;
   };
 
   /**
@@ -80,15 +77,15 @@ namespace g2o {
       const ParameterSE3Offset* offsetParam() const { return _offsetParam;}
       void setOffsetParam(ParameterSE3Offset* offsetParam);
 
-      const Eigen::Isometry3d& w2n() const { return _w2n;}
-      const Eigen::Isometry3d& n2w() const { return _n2w;}
-      const Eigen::Isometry3d& w2l() const { return _w2l;}
+      const Isometry3& w2n() const { return _w2n;}
+      const Isometry3& n2w() const { return _n2w;}
+      const Isometry3& w2l() const { return _w2l;}
 
     protected:
       ParameterSE3Offset* _offsetParam; ///< the parameter connected to the cache
-      Eigen::Isometry3d _w2n;
-      Eigen::Isometry3d _n2w;
-      Eigen::Isometry3d _w2l;
+      Isometry3 _w2n;
+      Isometry3 _n2w;
+      Isometry3 _w2l;
 
     protected:
       virtual bool resolveDependancies();

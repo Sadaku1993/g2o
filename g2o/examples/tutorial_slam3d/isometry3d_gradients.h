@@ -27,31 +27,29 @@
 #ifndef G2O_ISOMETRY3D_GRADIENTS_H_
 #define G2O_ISOMETRY3D_GRADIENTS_H_
 
-#include "g2o_types_slam3d_api.h"
 #include "isometry3d_mappings.h"
 #include "dquat2mat.h"
 
 #include <Eigen/Core>
-#include <Eigen/Geometry>
 
 namespace g2o {
   namespace internal {
     // forward declaration
-    /* void G2O_TYPES_SLAM3D_API compute_dq_dR (Eigen::Matrix<double, 3 , 9 >&  dq_dR , const double&  r11 , const double&  r21 , const double&  r31 , const double&  r12 , const double&  r22 , const double&  r32 , const double&  r13 , const double&  r23 , const double&  r33 );  */
+    /* void G2O_TYPES_SLAM3D_API compute_dq_dR (Eigen::Matrix<number_t, 3 , 9, Eigen::ColMajor>&  dq_dR , const number_t&  r11 , const number_t&  r21 , const number_t&  r31 , const number_t&  r12 , const number_t&  r22 , const number_t&  r32 , const number_t&  r13 , const number_t&  r23 , const number_t&  r33 );  */
 
     template <typename Derived, typename DerivedOther>
     inline void skew(Eigen::MatrixBase<Derived>& s, const Eigen::MatrixBase<DerivedOther>& v){
-      const double x=2*v(0);
-      const double y=2*v(1);
-      const double z=2*v(2);
+      const number_t x=2*v(0);
+      const number_t y=2*v(1);
+      const number_t z=2*v(2);
       s <<  0.,  z, -y, -z,  0,  x,  y, -x,  0;
     }
 
     template <typename Derived, typename DerivedOther>
     inline void skewT(Eigen::MatrixBase<Derived>& s, const Eigen::MatrixBase<DerivedOther>& v){
-      const double x=2*v(0);
-      const double y=2*v(1);
-      const double z=2*v(2);
+      const number_t x=2*v(0);
+      const number_t y=2*v(1);
+      const number_t z=2*v(2);
       s <<  0., -z,  y,  z,  0, -x,  -y,  x,  0;
     }
 
@@ -60,7 +58,7 @@ namespace g2o {
         Eigen::MatrixBase<Derived>& Sy, 
         Eigen::MatrixBase<Derived>& Sz, 
         const Eigen::MatrixBase<DerivedOther>& R){
-      const double 
+      const number_t 
         r11=2*R(0,0), r12=2*R(0,1), r13=2*R(0,2),
         r21=2*R(1,0), r22=2*R(1,1), r23=2*R(1,2),
         r31=2*R(2,0), r32=2*R(2,1), r33=2*R(2,2);
@@ -74,7 +72,7 @@ namespace g2o {
         Eigen::MatrixBase<Derived>& Sy, 
         Eigen::MatrixBase<Derived>& Sz, 
         const Eigen::MatrixBase<DerivedOther>& R){
-      const double
+      const number_t
         r11=2*R(0,0), r12=2*R(0,1), r13=2*R(0,2),
 	r21=2*R(1,0), r22=2*R(1,1), r23=2*R(1,2),
 	r31=2*R(2,0), r32=2*R(2,1), r33=2*R(2,2);
@@ -84,39 +82,39 @@ namespace g2o {
     }
 
   template <typename Derived>
-  void computeEdgeSE3Gradient(Eigen::Isometry3d& E,
+  void computeEdgeSE3Gradient(Isometry3& E,
                               Eigen::MatrixBase<Derived> const & JiConstRef, 
                               Eigen::MatrixBase<Derived> const & JjConstRef,
-                              const Eigen::Isometry3d& Z, 
-                              const Eigen::Isometry3d& Xi,
-                              const Eigen::Isometry3d& Xj,
-                              const Eigen::Isometry3d& Pi/*=Eigen::Isometry3d()*/, 
-                              const Eigen::Isometry3d& Pj/*=Eigen::Isometry3d()*/)
+                              const Isometry3& Z, 
+                              const Isometry3& Xi,
+                              const Isometry3& Xj,
+                              const Isometry3& Pi/*=Isometry3()*/, 
+                              const Isometry3& Pj/*=Isometry3()*/)
   {
     Eigen::MatrixBase<Derived>& Ji = const_cast<Eigen::MatrixBase<Derived>&>(JiConstRef);
     Eigen::MatrixBase<Derived>& Jj = const_cast<Eigen::MatrixBase<Derived>&>(JjConstRef);
     Ji.derived().resize(6,6);
     Jj.derived().resize(6,6);
     // compute the error at the linearization point
-    const Eigen::Isometry3d A=Z.inverse()*Pi.inverse();
-    const Eigen::Isometry3d B=Xi.inverse()*Xj;
-    const Eigen::Isometry3d& C=Pj;
+    const Isometry3 A=Z.inverse()*Pi.inverse();
+    const Isometry3 B=Xi.inverse()*Xj;
+    const Isometry3& C=Pj;
 
-    const Eigen::Isometry3d AB=A*B;  
-    const Eigen::Isometry3d BC=B*C;
+    const Isometry3 AB=A*B;  
+    const Isometry3 BC=B*C;
     E=AB*C;
 
-    Eigen::Isometry3d::ConstLinearPart Re = extractRotation(E);
-    Eigen::Isometry3d::ConstLinearPart Ra = extractRotation(A);
-    //const Matrix3d Rb = extractRotation(B);
-    Eigen::Isometry3d::ConstLinearPart Rc = extractRotation(C);
-    Eigen::Isometry3d::ConstTranslationPart tc = C.translation();
-    //Eigen::Isometry3d::ConstTranslationParttab=AB.translation();
-    Eigen::Isometry3d::ConstLinearPart Rab = extractRotation(AB);
-    Eigen::Isometry3d::ConstTranslationPart tbc = BC.translation();  
-    Eigen::Isometry3d::ConstLinearPart Rbc = extractRotation(BC);
+    Isometry3::ConstLinearPart Re = extractRotation(E);
+    Isometry3::ConstLinearPart Ra = extractRotation(A);
+    //const Matrix3 Rb = extractRotation(B);
+    Isometry3::ConstLinearPart Rc = extractRotation(C);
+    Isometry3::ConstTranslationPart tc = C.translation();
+    //Isometry3::ConstTranslationParttab=AB.translation();
+    Isometry3::ConstLinearPart Rab = extractRotation(AB);
+    Isometry3::ConstTranslationPart tbc = BC.translation();  
+    Isometry3::ConstLinearPart Rbc = extractRotation(BC);
 
-    Eigen::Matrix<double, 3 , 9 >  dq_dR;
+    Eigen::Matrix<number_t, 3 , 9, Eigen::ColMajor>  dq_dR;
     compute_dq_dR (dq_dR, 
         Re(0,0),Re(1,0),Re(2,0),
         Re(0,1),Re(1,1),Re(2,1),
@@ -133,87 +131,87 @@ namespace g2o {
 
     // dte/dqi
     {
-      Eigen::Matrix3d S;
+      Matrix3 S;
       skewT(S,tbc);
       Ji.template block<3,3>(0,3)=Ra*S;
     }
 
     // dte/dqj
     {
-      Eigen::Matrix3d S;
+      Matrix3 S;
       skew(S,tc);
       Jj.template block<3,3>(0,3)=Rab*S;
     }
 
     // dre/dqi
     {
-      double buf[27];
-      Eigen::Map<Eigen::Matrix<double, 9,3> > M(buf);
-      Eigen::Matrix3d Sxt,Syt,Szt;
+      number_t buf[27];
+      Eigen::Map<Eigen::Matrix<number_t, 9, 3, Eigen::ColMajor> > M(buf);
+      Matrix3 Sxt,Syt,Szt;
       internal::skewT(Sxt,Syt,Szt,Rbc);
 #ifdef __clang__
-      Eigen::Matrix3d temp = Rab * Sxt;
-      Eigen::Map<Eigen::Matrix3d> M2(temp.data());
-      Eigen::Map<Eigen::Matrix3d> Mx(buf);    Mx = M2;
+      Matrix3 temp = Rab * Sxt;
+      Eigen::Map<Matrix3> M2(temp.data());
+      Eigen::Map<Matrix3> Mx(buf);    Mx = M2;
       temp = Ra*Syt;
-      Eigen::Map<Eigen::Matrix3d> My(buf+9);  My = M2;
+      Eigen::Map<Matrix3> My(buf+9);  My = M2;
       temp = Ra*Szt;
-      Eigen::Map<Eigen::Matrix3d> Mz(buf+18); Mz = M2;
+      Eigen::Map<Matrix3> Mz(buf+18); Mz = M2;
 #else
-      Eigen::Map<Eigen::Matrix3d> Mx(buf);    Mx = Ra*Sxt;
-      Eigen::Map<Eigen::Matrix3d> My(buf+9);  My = Ra*Syt;
-      Eigen::Map<Eigen::Matrix3d> Mz(buf+18); Mz = Ra*Szt;
+      Eigen::Map<Matrix3> Mx(buf);    Mx = Ra*Sxt;
+      Eigen::Map<Matrix3> My(buf+9);  My = Ra*Syt;
+      Eigen::Map<Matrix3> Mz(buf+18); Mz = Ra*Szt;
 #endif
       Ji.template block<3,3>(3,3) = dq_dR * M;
     }
 
     // dre/dqj
     {
-      double buf[27];
-      Eigen::Map <Eigen::Matrix<double, 9,3> > M(buf);
-      Eigen::Matrix3d Sx,Sy,Sz;
+      number_t buf[27];
+      Eigen::Map <Eigen::Matrix<number_t, 9, 3, Eigen::ColMajor> > M(buf);
+      Matrix3 Sx,Sy,Sz;
       internal::skew(Sx,Sy,Sz,Rc);
 #ifdef __clang__
-      Eigen::Matrix3d temp = Rab * Sx;
-      Eigen::Map<Eigen::Matrix3d> M2(temp.data());
-      Eigen::Map<Eigen::Matrix3d> Mx(buf);    Mx = M2;
+      Matrix3 temp = Rab * Sx;
+      Eigen::Map<Matrix3> M2(temp.data());
+      Eigen::Map<Matrix3> Mx(buf);    Mx = M2;
       temp = Rab*Sy;
-      Eigen::Map<Eigen::Matrix3d> My(buf+9);  My = M2;
+      Eigen::Map<Matrix3> My(buf+9);  My = M2;
       temp = Rab*Sz;
-      Eigen::Map<Eigen::Matrix3d> Mz(buf+18); Mz = M2;
+      Eigen::Map<Matrix3> Mz(buf+18); Mz = M2;
 #else
-      Eigen::Map<Eigen::Matrix3d> Mx(buf);    Mx = Rab*Sx;
-      Eigen::Map<Eigen::Matrix3d> My(buf+9);  My = Rab*Sy;
-      Eigen::Map<Eigen::Matrix3d> Mz(buf+18); Mz = Rab*Sz;
+      Eigen::Map<Matrix3> Mx(buf);    Mx = Rab*Sx;
+      Eigen::Map<Matrix3> My(buf+9);  My = Rab*Sy;
+      Eigen::Map<Matrix3> Mz(buf+18); Mz = Rab*Sz;
 #endif
       Jj.template block<3,3>(3,3) = dq_dR * M;
     }
   }
 
   template <typename Derived>
-  void computeEdgeSE3Gradient(Eigen::Isometry3d& E,
+  void computeEdgeSE3Gradient(Isometry3& E,
                               Eigen::MatrixBase<Derived> const & JiConstRef, 
                               Eigen::MatrixBase<Derived> const & JjConstRef,
-                              const Eigen::Isometry3d& Z, 
-                              const Eigen::Isometry3d& Xi,
-                              const Eigen::Isometry3d& Xj)
+                              const Isometry3& Z, 
+                              const Isometry3& Xi,
+                              const Isometry3& Xj)
   {
     Eigen::MatrixBase<Derived>& Ji = const_cast<Eigen::MatrixBase<Derived>&>(JiConstRef);
     Eigen::MatrixBase<Derived>& Jj = const_cast<Eigen::MatrixBase<Derived>&>(JjConstRef);
     Ji.derived().resize(6,6);
     Jj.derived().resize(6,6);
     // compute the error at the linearization point
-    const Eigen::Isometry3d A=Z.inverse();
-    const Eigen::Isometry3d B=Xi.inverse()*Xj;
+    const Isometry3 A=Z.inverse();
+    const Isometry3 B=Xi.inverse()*Xj;
 
     E=A*B;
 
-    Eigen::Isometry3d::ConstLinearPart Re = extractRotation(E);
-    Eigen::Isometry3d::ConstLinearPart Ra = extractRotation(A);
-    Eigen::Isometry3d::ConstLinearPart Rb = extractRotation(B);
-    Eigen::Isometry3d::ConstTranslationPart tb = B.translation();  
+    Isometry3::ConstLinearPart Re = extractRotation(E);
+    Isometry3::ConstLinearPart Ra = extractRotation(A);
+    Isometry3::ConstLinearPart Rb = extractRotation(B);
+    Isometry3::ConstTranslationPart tb = B.translation();  
 
-    Eigen::Matrix<double, 3 , 9 >  dq_dR;
+    Eigen::Matrix<number_t, 3, 9, Eigen::ColMajor>  dq_dR;
     compute_dq_dR (dq_dR, 
         Re(0,0),Re(1,0),Re(2,0),
         Re(0,1),Re(1,1),Re(2,1),
@@ -230,58 +228,58 @@ namespace g2o {
 
     // dte/dqi
     {
-      Eigen::Matrix3d S;
+      Matrix3 S;
       skewT(S,tb);
       Ji.template block<3,3>(0,3)=Ra*S;
     }
 
     // dte/dqj: this is zero
 
-    double buf[27];
-    Eigen::Map<Eigen::Matrix<double, 9,3> > M(buf);
-    Eigen::Matrix3d Sxt,Syt,Szt;
+    number_t buf[27];
+    Eigen::Map<Eigen::Matrix<number_t, 9, 3, Eigen::ColMajor> > M(buf);
+    Matrix3 Sxt,Syt,Szt;
     // dre/dqi
     {
       skewT(Sxt,Syt,Szt,Rb);
-      Eigen::Map<Eigen::Matrix3d> Mx(buf);    Mx.noalias() = Ra*Sxt;
-      Eigen::Map<Eigen::Matrix3d> My(buf+9);  My.noalias() = Ra*Syt;
-      Eigen::Map<Eigen::Matrix3d> Mz(buf+18); Mz.noalias() = Ra*Szt;
+      Eigen::Map<Matrix3> Mx(buf);    Mx.noalias() = Ra*Sxt;
+      Eigen::Map<Matrix3> My(buf+9);  My.noalias() = Ra*Syt;
+      Eigen::Map<Matrix3> Mz(buf+18); Mz.noalias() = Ra*Szt;
       Ji.template block<3,3>(3,3) = dq_dR * M;
     }
 
     // dre/dqj
     {
-      Eigen::Matrix3d& Sx = Sxt;
-      Eigen::Matrix3d& Sy = Syt;
-      Eigen::Matrix3d& Sz = Szt;
-      skew(Sx,Sy,Sz,Eigen::Matrix3d::Identity());
-      Eigen::Map<Eigen::Matrix3d> Mx(buf);    Mx.noalias() = Re*Sx;
-      Eigen::Map<Eigen::Matrix3d> My(buf+9);  My.noalias() = Re*Sy;
-      Eigen::Map<Eigen::Matrix3d> Mz(buf+18); Mz.noalias() = Re*Sz;
+      Matrix3& Sx = Sxt;
+      Matrix3& Sy = Syt;
+      Matrix3& Sz = Szt;
+      skew(Sx,Sy,Sz,Matrix3::Identity());
+      Eigen::Map<Matrix3> Mx(buf);    Mx.noalias() = Re*Sx;
+      Eigen::Map<Matrix3> My(buf+9);  My.noalias() = Re*Sy;
+      Eigen::Map<Matrix3> Mz(buf+18); Mz.noalias() = Re*Sz;
       Jj.template block<3,3>(3,3) = dq_dR * M;
     }
   }
 
 
   template <typename Derived>
-  void computeEdgeSE3PriorGradient(Eigen::Isometry3d& E,
+  void computeEdgeSE3PriorGradient(Isometry3& E,
                                    const Eigen::MatrixBase<Derived>& JConstRef, 
-                                   const Eigen::Isometry3d& Z, 
-                                   const Eigen::Isometry3d& X,
-                                   const Eigen::Isometry3d& P=Eigen::Isometry3d())
+                                   const Isometry3& Z, 
+                                   const Isometry3& X,
+                                   const Isometry3& P=Isometry3())
   {
     Eigen::MatrixBase<Derived>& J = const_cast<Eigen::MatrixBase<Derived>&>(JConstRef);
     J.derived().resize(6,6);
     // compute the error at the linearization point
-    const Eigen::Isometry3d A = Z.inverse()*X;
-    const Eigen::Isometry3d& B = P;
-    Eigen::Isometry3d::ConstLinearPart Ra = extractRotation(A);
-    Eigen::Isometry3d::ConstLinearPart Rb = extractRotation(B);
-    Eigen::Isometry3d::ConstTranslationPart tb = B.translation();
+    const Isometry3 A = Z.inverse()*X;
+    const Isometry3& B = P;
+    Isometry3::ConstLinearPart Ra = extractRotation(A);
+    Isometry3::ConstLinearPart Rb = extractRotation(B);
+    Isometry3::ConstTranslationPart tb = B.translation();
     E = A*B;
-    Eigen::Isometry3d::ConstLinearPart Re = extractRotation(E);
+    Isometry3::ConstLinearPart Re = extractRotation(E);
 
-    Eigen::Matrix<double, 3 , 9 >  dq_dR;
+    Eigen::Matrix<number_t, 3, 9, Eigen::ColMajor> dq_dR;
     compute_dq_dR (dq_dR, 
         Re(0,0),Re(1,0),Re(2,0),
         Re(0,1),Re(1,1),Re(2,1),
@@ -295,7 +293,7 @@ namespace g2o {
     // dte/dq =0
     // dte/dqj
     {
-      Eigen::Matrix3d S;
+      Matrix3 S;
       skew(S,tb);
       J.template block<3,3>(0,3)=Ra*S;
     }
@@ -304,22 +302,22 @@ namespace g2o {
 
     // dre/dq
     {
-      double buf[27];
-      Eigen::Map<Eigen::Matrix<double, 9,3> > M(buf);
-      Eigen::Matrix3d Sx,Sy,Sz;
+      number_t buf[27];
+      Eigen::Map<Eigen::Matrix<number_t, 9, 3, Eigen::ColMajor> > M(buf);
+      Matrix3 Sx,Sy,Sz;
       internal::skew(Sx,Sy,Sz,Rb);
 #ifdef __clang__
-      Eigen::Matrix3d temp = Ra * Sx;
-      Eigen::Map<Eigen::Matrix3d> M2(temp.data());
-      Eigen::Map<Eigen::Matrix3d> Mx(buf);    Mx = M2;
+      Matrix3 temp = Ra * Sx;
+      Eigen::Map<Matrix3> M2(temp.data());
+      Eigen::Map<Matrix3> Mx(buf);    Mx = M2;
       temp = Ra*Sy;
-      Eigen::Map<Eigen::Matrix3d> My(buf+9);  My = M2;
+      Eigen::Map<Matrix3> My(buf+9);  My = M2;
       temp = Ra*Sz;
-      Eigen::Map<Eigen::Matrix3d> Mz(buf+18); Mz = M2;
+      Eigen::Map<Matrix3> Mz(buf+18); Mz = M2;
 #else
-      Eigen::Map<Eigen::Matrix3d> Mx(buf);    Mx = Ra*Sx;
-      Eigen::Map<Eigen::Matrix3d> My(buf+9);  My = Ra*Sy;
-      Eigen::Map<Eigen::Matrix3d> Mz(buf+18); Mz = Ra*Sz;
+      Eigen::Map<Matrix3> Mx(buf);    Mx = Ra*Sx;
+      Eigen::Map<Matrix3> My(buf+9);  My = Ra*Sy;
+      Eigen::Map<Matrix3> Mz(buf+18); Mz = Ra*Sz;
 #endif
       J.template block<3,3>(3,3) = dq_dR * M;
     }
