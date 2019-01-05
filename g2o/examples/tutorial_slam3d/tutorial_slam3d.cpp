@@ -1,14 +1,6 @@
 #include <iostream>
 #include <cmath>
 
-// #include "simulator.h"
-
-// #include "vertex_se3.h"
-// #include "vertex_pointxyz.h"
-// #include "edge_se3.h"
-// #include "se3quat.h"
-// #include "edge_se3_pointxyz.h"
-
 #include "g2o/types/slam3d/vertex_se3.h"
 #include "g2o/types/slam3d/vertex_pointxyz.h"
 #include "g2o/types/slam3d/edge_se3.h"
@@ -25,15 +17,14 @@
 
 using namespace std;
 using namespace g2o;
-// using namespace g2o::tutorial;
 
 
 int main()
 {
     std::cout<<"start"<<std::endl;
-
-	typedef BlockSolver< BlockSolverTraits<-1, -1> >  SlamBlockSolver;
-	typedef LinearSolverCSparse<SlamBlockSolver::PoseMatrixType> SlamLinearSolver;
+    
+    typedef BlockSolver< BlockSolverTraits<-1, -1> >  SlamBlockSolver;
+    typedef LinearSolverCSparse<SlamBlockSolver::PoseMatrixType> SlamLinearSolver;
 
     // allocating the optimizer
     SparseOptimizer optimizer;
@@ -47,10 +38,24 @@ int main()
     optimizer.load("bfr.csv");
 
     // prepare and run the optimization
-	// fix the first robot pose to account for gauge freedom
+    // fix the first robot pose to account for gauge freedom
     VertexSE3* firstRobotPose = dynamic_cast<VertexSE3*>(optimizer.vertex(0));
     firstRobotPose->setFixed(true);
     optimizer.setVerbose(true);
+
+    std::cerr << "Optimizing" << std::endl;
+    optimizer.initialOptimization();
+    optimizer.optimize(10);
+    std::cout << "done." << std::endl;
+
+    optimizer.save("aft.csv");
+
+    // freeing the graph memory
+    optimizer.clear();
+
+    // destoroy all the singletons
+    Factory::destroy();
+    OptimizationAlgorithmFactory::destroy();
 
     return 0;
 }
