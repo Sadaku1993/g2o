@@ -54,8 +54,8 @@ int main()
     optimizer.clear();
 
     // destoroy all the singletons
-    Factory::destroy();
-    OptimizationAlgorithmFactory::destroy();
+    // Factory::destroy();
+    // OptimizationAlgorithmFactory::destroy();
 
     return 0;
 }
